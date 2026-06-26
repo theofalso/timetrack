@@ -10,7 +10,7 @@ import (
 var rootCmd = &cobra.Command{
 	Use:   "timetrack",
 	Short: "Time Tracker CLI",
-	Long:  `A CLI tool that measure time for your projects.`,
+	Long:  `A command-line tool to manage and track your project time.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		cmd.Help()
 	},
