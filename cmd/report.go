@@ -8,10 +8,12 @@ import (
 	"github.com/theofalso/timetrack/internal/store"
 )
 
+var projectFlag string
+
 var reportCmd = &cobra.Command{
 	Use:   "report",
 	Short: "Show tracked time report",
-	Long:  `Displays a summary of total tracked time grouped by project.`,
+	Long:  `Displays a summary of total tracked time grouped by project, with optional filtering.`,
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		sessions, err := store.Load()
@@ -24,11 +26,18 @@ var reportCmd = &cobra.Command{
 			return nil
 		}
 
-		// map to hold total durations per project
 		projectTotals := make(map[string]time.Duration)
 
 		for _, s := range sessions {
+			if projectFlag != "" && s.Project != projectFlag {
+				continue
+			}
 			projectTotals[s.Project] += s.Duration()
+		}
+
+		if len(projectTotals) == 0 {
+			fmt.Printf("No sessions found for project '%s'.\n", projectFlag)
+			return nil
 		}
 
 		fmt.Println("Time Report by Project:")
@@ -39,7 +48,6 @@ var reportCmd = &cobra.Command{
 			if cleanTime >= time.Minute {
 				cleanTime = totalTime.Round(time.Minute)
 			}
-
 			fmt.Printf("%s: %s\n", project, cleanTime)
 		}
 		fmt.Println("---------------------------")
@@ -49,5 +57,8 @@ var reportCmd = &cobra.Command{
 }
 
 func init() {
+
+	reportCmd.Flags().StringVarP(&projectFlag, "project", "p", "", "Filter report by project name")
+
 	rootCmd.AddCommand(reportCmd)
 }
