@@ -48,7 +48,7 @@ var statusCmd = &cobra.Command{
 			select {
 			case <-ticker.C:
 				duration := time.Since(lastSession.StartTime).Round(time.Second)
-				fmt.Printf("\r⏱️ Elapsed time: %s", duration)
+				fmt.Printf("\rElapsed time: %s", duration)
 
 			case <-sigChan: // exit with control c
 				fmt.Println("\nExiting status...")
