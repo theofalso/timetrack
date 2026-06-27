@@ -4,38 +4,31 @@
     <meta charset="UTF-8">
     <title>Time Tracker Dashboard</title>
     <style>
-        body { 
-            font-family: monospace; 
-            margin: 20px; 
-            background-color: #ffffff; 
-            color: #000000; 
-        }
-        h1 { 
-            font-size: 1.5em; 
-            margin-bottom: 20px; 
-        }
-        table { 
-            width: 100%; 
-            border-collapse: collapse; 
-        }
-        th, td { 
-            border: 1px solid #000000; 
-            padding: 8px; 
-            text-align: left; 
-        }
-        th { 
-            background-color: #f0f0f0; 
-        }
-        .active { 
-            color: #ff0000; 
-            font-weight: bold; 
-        }
+        body { font-family: monospace; margin: 20px; background-color: #ffffff; color: #000000; }
+        h1, h2 { font-size: 1.3em; margin-top: 30px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #000000; padding: 8px; text-align: left; }
+        th { background-color: #f0f0f0; }
+        .active { color: #ff0000; font-weight: bold; }
+        
+        .chart-container { margin-top: 15px; border: 1px solid #000000; padding: 15px; }
+        .chart-row { margin-bottom: 10px; }
+        .bar-label { display: inline-block; width: 150px; font-weight: bold; }
+        .bar-wrapper { display: inline-block; width: 60%; background-color: #f0f0f0; border: 1px solid #000000; vertical-align: middle;}
+        .bar { height: 20px; background-color: #000000; width: 0%; transition: width 0.5s; }
+        .bar-value { display: inline-block; margin-left: 10px; }
     </style>
 </head>
 <body>
 
     <h1>TIMETRACK DASHBOARD</h1>
 
+    <h2>WEEKLY REPORT (GRAPH)</h2>
+    <div class="chart-container" id="chart">
+        Cargando gráfico...
+    </div>
+
+    <h2>ALL SESSIONS LOG</h2>
     <table>
         <thead>
             <tr>
@@ -63,5 +56,38 @@
         </tbody>
     </table>
 
+    <script>
+        fetch('/api/report?range=week')
+            .then(res => res.json())
+            .then(data => {
+                const container = document.getElementById('chart');
+                container.innerHTML = '';
+
+                const projects = Object.keys(data);
+                if (projects.length === 0) {
+                    container.innerHTML = 'No data recorded for this week.';
+                    return;
+                }
+                const maxSeconds = Math.max(...Object.values(data));
+
+                projects.forEach(project => {
+                    const seconds = data[project];
+                    const percentage = maxSeconds > 0 ? (seconds / maxSeconds) * 100 : 0;
+                    
+                    const hours = (seconds / 3600).toFixed(1);
+
+                    const row = document.createElement('div');
+                    row.className = 'chart-row';
+                    row.innerHTML = `
+                        <span class="bar-label">${project.toUpperCase()}</span>
+                        <div class="bar-wrapper">
+                            <div class="bar" style="width: ${percentage}%"></div>
+                        </div>
+                        <span class="bar-value">${hours}h</span>
+                    `;
+                    container.appendChild(row);
+                });
+            });
+    </script>
 </body>
 </html>
