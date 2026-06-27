@@ -86,8 +86,7 @@ func StartServer(port string) error {
 	http.HandleFunc("/api/sessions", HandleSessions)
 	http.HandleFunc("/api/report", HandleReportAPI)
 	http.HandleFunc("/", HandleDashboard)
-	fmt.Printf("Web server running at http://localhost:%s\n", port)
+	fmt.Printf("Web server running securely at http://127.0.0.1:%s\n", port)
 	fmt.Println("Press Ctrl+C to stop.")
-
-	return http.ListenAndServe(":"+port, nil)
+	return http.ListenAndServe("127.0.0.1:"+port, nil)
 }
